@@ -2,17 +2,19 @@ using UnityEngine;
 
 public class MainTab : MonoBehaviour
 {
-    [SerializeField] GameObject TopPanelGO;
-    [SerializeField] GameObject DropShadowLGO;
-    [SerializeField] GameObject DropShadowBGO;
-    [SerializeField] GameObject DropShadowRGO;
-    [SerializeField] GameObject TextInputPanelGO;
+    [SerializeField] GameObject topPanelGO;
+    [SerializeField] GameObject dropShadowLGO;
+    [SerializeField] GameObject dropShadowBGO;
+    [SerializeField] GameObject dropShadowRGO;
+    [SerializeField] GameObject textInputPanelGO;
 
-    [SerializeField] TMPro.TMP_InputField InputText;
+    [SerializeField] TMPro.TMP_InputField inputText;
 
-    [SerializeField] GameObject StartButtonGO;
+    [SerializeField] GameObject startButtonGO;
+    [SerializeField] GameObject againButtonGO;
+    [SerializeField] GameObject replayButtonGO;
 
-    [SerializeField] GameObject RecordButtonGO;
+    [SerializeField] GameObject recordButtonGO;
 
 
     /// <summary>
@@ -28,12 +30,15 @@ public class MainTab : MonoBehaviour
     private void Awake() 
     {
         SetUpStartUI();
-        InputText.onSelect.AddListener(delegate { OnInputTextFocus(InputText); });
-        InputText.onDeselect.AddListener(delegate { OnInputTextUnfocus(InputText); });
-        InputText.onValueChanged.AddListener(delegate { OnInputTextChange(InputText); });
-        InputText.onEndEdit.AddListener(delegate { OnInputTextFinish(InputText); });
-        StartButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnStartButtonClickFocusText(); });
-        RecordButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnRecordButtonClick(); });
+        inputText.onSelect.AddListener(delegate { OnInputTextFocus(inputText); });
+        // inputText.onDeselect.AddListener(delegate { OnInputTextUnfocus(inputText); });
+        inputText.onValueChanged.AddListener(delegate { OnInputTextChange(inputText); });
+        
+        // This is not working, as it trigger even when the text is unfocused
+        // inputText.onEndEdit.AddListener(delegate { OnInputTextFinish(inputText); });
+        startButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnStartButtonClick(); });
+        recordButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnRecordButtonClick(); });
+        againButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnAgainButtonClick(); });
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -75,11 +80,11 @@ public class MainTab : MonoBehaviour
         // If the input field contains any text, enable the Start button
         if (inputField.text.Length > 0)
         {
-            StartButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = true;
+            startButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = true;
         }        
         else
         {
-            StartButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = false;
+            startButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = false;
         }
 
         // If the input field is longer than max char, do not allow to enter more
@@ -90,16 +95,22 @@ public class MainTab : MonoBehaviour
         }
     }
 
-    private void OnInputTextFinish(TMPro.TMP_InputField inputField)
-    {
-        Debug.Log(inputField.name + " text finished: " + inputField.text);
-        OnStartButtonClickDoneText();
-    }
-
-    private void OnStartButtonClickFocusText()
+    /// <summary>
+    /// Handles two type of event depend on the scenario: 
+    /// 1. The user focus on the EditText when the EditText is empty -> change to EditText focus layout
+    /// 2. The input field's text is finished and the SayIt button is clicked. -> change to new layout
+    /// </summary>
+    private void OnStartButtonClick()
     {
         Debug.Log("Start button clicked to focus on EditText.");
-        InputText.Select();
+        if (inputText.text.Length > 0)
+        {
+            Debug.Log(inputText.name + " text finished: " + inputText.text);
+            OnStartButtonClickDoneText();
+        } else {
+            inputText.Select();
+            Debug.Log(inputText.name + " text finished but there is nothing: " + inputText.text);
+        }
     }
 
     private void OnStartButtonClickDoneText()
@@ -114,79 +125,110 @@ public class MainTab : MonoBehaviour
         
     }
 
+    private void OnAgainButtonClick()
+    {
+        Debug.Log("Again button clicked.");
+        SetupFocusTextUI();
+
+        // Refocus on the input text
+        inputText.Select();
+    }
+
     public void SetUpStartUI()
     {
         // Set up the default image for the top panel. This image is a sprite that is loaded from the Resources folder.
-        TopPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar");
+        topPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar");
 
         // Move the top panel to the top of the screen
-        TopPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -280);
+        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -280);
         // Set the default size for the top panel
-        TopPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 560);
+        topPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 560);
 
         // Change the text prompt of PromptText
-        TextInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Did you find a new \nSwedish word?";
+        textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Did you find a new \nSwedish word?";
 
-        TextInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -904);
+        textInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -904);
 
-        DropShadowLGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-384, -904);
-        DropShadowBGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -1188);
-        DropShadowRGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(384, -904);
+        dropShadowLGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-384, -904);
+        dropShadowBGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -1188);
+        dropShadowRGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(384, -904);
         
-        // Enable the StartButtonGO
-        StartButtonGO.SetActive(true);
+        // Enable the startButtonGO
+        startButtonGO.SetActive(true);
         // Enable the start button button, not GO        
-        StartButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = true;
+        startButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = true;
         
         // Disable the ReadAloudTextGO
-        TextInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(false);
+        textInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(false);
 
         // Disable the recording button
-        RecordButtonGO.SetActive(false);
+        recordButtonGO.SetActive(false);
+        againButtonGO.SetActive(false);
+        replayButtonGO.SetActive(false);
     }
 
     public void SetupFocusTextUI()
     {
         // Set up the smaller image for the top panel. This image is a sprite that is loaded from the Resources folder.
-        TopPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar_noicon");
+        topPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar_noicon");
 
         // Move the top panel to the top of the screen
-        TopPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -125);
+        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -125);
         // Set the default size for the top panel
-        TopPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 250);
+        topPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 250);
 
         // Change the text prompt of PromptText
-        TextInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Type in Swedish, and \nlet's practice!";
+        textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Type in Swedish, and \nlet's practice!";
 
-        TextInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -692);
+        textInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -692);
 
-        DropShadowLGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-384, -692);
-        DropShadowBGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -976);
-        DropShadowRGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(384, -692);
+        dropShadowLGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-384, -692);
+        dropShadowBGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -976);
+        dropShadowRGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(384, -692);
+
+        // Enable the inputText
+        inputText.gameObject.SetActive(true);
+
+        // Disable the text prompt of PromptText
+        textInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(false);
 
         // Disable the start button button, not GO
         // Disable the button will change its color to gray and make it unclickable (set in the Editor)
-        StartButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = false;
+
+        // Only disable the start button if there is no text in the input field
+        if (inputText.text.Length == 0)
+            startButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = false;
+        else {
+            startButtonGO.GetComponent<UnityEngine.UI.Button>().interactable = true;
+        }
+
+        // Enable the startButtonGO
+        startButtonGO.SetActive(true);
+
+        // Disable the recording button        
+        recordButtonGO.SetActive(false);
+        againButtonGO.SetActive(false);
     }
 
     public void SetUpReadAloudUI()
     {
         // Change the text prompt of PromptText
-        TextInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Tap the record \nbutton and speak.";
+        textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Tap the record \nbutton and speak.";
         
-        // Disable the InputTextGO
-        InputText.gameObject.SetActive(false);
+        // Disable the inputText
+        inputText.gameObject.SetActive(false);
 
-        TextInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(true);
-        TextInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().text = InputText.text;
+        textInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(true);
+        textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().text = inputText.text;
         
         // Clean the input text
-        InputText.text = "";
+        inputText.text = "";
 
-        // Disable the StartButtonGO
-        StartButtonGO.SetActive(false);
+        // Disable the startButtonGO
+        startButtonGO.SetActive(false);
 
         // Enable the recording button
-        RecordButtonGO.SetActive(true);
+        recordButtonGO.SetActive(true);
+        againButtonGO.SetActive(true);
     }
 }
