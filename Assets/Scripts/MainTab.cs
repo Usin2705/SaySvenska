@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
 
 public class MainTab : MonoBehaviour
 {
@@ -16,6 +18,11 @@ public class MainTab : MonoBehaviour
 
     [SerializeField] GameObject recordButtonGO;
 
+    [SerializeField] GameObject stopButtonGO;
+
+    private float countdownTime = 6.0f;
+    private float currentTime = 6.0f;
+    private string transcript;
 
     /// <summary>
     /// Awake is called when the script instance is being loaded. This is used to initialize any variables or game state 
@@ -52,7 +59,80 @@ public class MainTab : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Only run this code if the stopButton  is active
+        // Only run this code if the progress bar is active
+        if (stopButtonGO.activeSelf == true) {
+            UpdateProgressCircle();            
+        } 
+    }
+
+    /// <summary>
+    /// Updates the progress circle based on the remaining countdown time.
+    /// </summary>
+    /// <remarks>
+    /// This method calculates the current progress of a countdown timer and updates the source image
+    /// of the stop button to reflect the progress. The progress is divided into four stages, each represented
+    /// by a different image. When the progress reaches zero, the timer is stopped and the <c>OnFinnishTimer</c>
+    /// method is called.
+    /// 
+    /// Since this is run within the Update method, the progress circle is updated every frame.
+    /// The varoable <c>currentTime</c> is a global variable and need to be set on <c>StartTimer</c> method.
+    /// </remarks>
+    private void UpdateProgressCircle()
+    {
+        // Calculate the current time
+        currentTime -= Time.deltaTime;
+
+        // Calculate the current progress
+        float currentProgress = currentTime / countdownTime;
+
+        // Change the StopButton source image to show the progress circle
         
+        // If the progress is less than or equal to 0, stop the timer and call the OnFinnishTimer method
+        // Remember to reset the currentTime to 0 and set the stopButtonGO source image to default
+        // Most important, disable the stopButtonGO (it will disable the progress circle call in Update())
+        if (currentProgress <= 0) 
+        {
+            currentTime = 0;
+            stopButtonGO.SetActive(false);            
+            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_0");                                    
+            
+            // Once timer finish, call the external method to stop the recording
+            // and wait for the audio to be processed (coroutine) and then enable the replay button
+            StartCoroutine(StopRecordingAndProcessAudio());
+        }
+        else if (currentProgress <= 0.05)
+        {
+            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_4");                                    
+        } else if (currentProgress < 0.25)
+        {
+            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_3");                        
+        } else if (currentProgress < 0.5)
+        {
+            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_2");            
+        } else if (currentProgress < 0.75)
+        {
+            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_1");
+        } 
+    }
+
+    private void StartTimer() 
+    {
+        // The length of the audio clip depend on the number of characters
+        // of the text to be recorded + EXTRA_TIME
+        countdownTime = transcript.Length*Const.SEC_PER_CHAR + Const.EXTRA_TIME;
+
+        // Make sure the countdown time is not more than MAX_REC_TIME
+        if (countdownTime > Const.MAX_REC_TIME) countdownTime = Const.MAX_REC_TIME;   
+
+        // Start countdown so the user know how long the recording will be
+        currentTime = countdownTime;
+
+        // Hide the record button
+        recordButtonGO.SetActive(false);
+
+        // Show the countdown progress circle and the stop button
+        stopButtonGO.SetActive(true);
     }
 
     private void OnInputTextFocus(TMPro.TMP_InputField inputField)
@@ -123,6 +203,19 @@ public class MainTab : MonoBehaviour
     {
         Debug.Log("Record button clicked.");
         
+        // Get the text from the ReadAloudText and store it in the transcript variable
+        // Technically, this should be done in the OnStartButtonClickDoneText method, but it is done here 
+        // to ensure that the text is captured before the recording starts and to be consistent with the
+        // original code.
+        transcript = textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().text;
+
+        // Santinize the text
+        //transcript = TextUtils.SantinizeText(transcript);
+
+        // Start recording
+        AudioManager.GetManager().StartRecording(Const.MAX_REC_TIME);
+
+        StartTimer();
     }
 
     private void OnAgainButtonClick()
@@ -230,5 +323,23 @@ public class MainTab : MonoBehaviour
         // Enable the recording button
         recordButtonGO.SetActive(true);
         againButtonGO.SetActive(true);
+    }
+
+    private void OnFinnishTimer()
+    {
+        // Once timer finish, call the external method to stop the recording
+        // and wait for the audio to be processed (coroutine) and then enable the replay button
+        StartCoroutine(StopRecordingAndProcessAudio());
+    }
+
+    private IEnumerator StopRecordingAndProcessAudio()
+    {
+        // AudioManager.GetManager().GetAudioAndPost(transcript, textInputPanelGO, textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>(), 
+        //                                         textInputPanelGO.transform.Find("WarningImage").gameObject, textInputPanelGO.transform.Find("ResultPanel").gameObject, 
+        //                                         textInputPanelGO.transform.Find("DebugText").GetComponent<TMPro.TextMeshProUGUI>());
+        AudioManager.GetManager().GetAudioAndPost(transcript);
+
+        replayButtonGO.transform.GetComponent<Button>().onClick.RemoveAllListeners();
+        yield return AudioManager.GetManager().LoadAudioClip(Const.REPLAY_FILENAME, replayButtonGO);                
     }
 }
