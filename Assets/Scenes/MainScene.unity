@@ -810,6 +810,7 @@ MonoBehaviour:
   againButtonGO: {fileID: 985610055}
   replayButtonGO: {fileID: 566993198}
   recordButtonGO: {fileID: 998242861}
+  stopButtonGO: {fileID: 0}
 --- !u!1 &338921885
 GameObject:
   m_ObjectHideFlags: 0
@@ -2733,8 +2734,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Did you find a new Swedish word?
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0f07c93e9bf014d3591bdca0393bd6fa, type: 2}
+  m_sharedMaterial: {fileID: 1587120160917898645, guid: 0f07c93e9bf014d3591bdca0393bd6fa, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2764,7 +2765,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
