@@ -76,7 +76,7 @@ crashlytics-build.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/unity
 
-Assets/Scripts/Utils/Secret.cs
+# Assets/Scripts/Utils/Secret.cs
 user.keystore
 
 
