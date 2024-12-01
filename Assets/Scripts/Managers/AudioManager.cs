@@ -41,13 +41,13 @@ public class AudioManager : MonoBehaviour
         audioSource.Play();
     }
 
-    public void GetAudioAndPost(string transcript)
+    public void GetAudioAndPost(string transcript, GameObject textErrorGO, GameObject resultTextGO, GameObject resultPanelGO, GameObject debugTextGO)
     {
         Microphone.End("");        
         byte[] wavBuffer = SavWav.GetWav(audioSource.clip, out uint length, trim:true);
         SavWav.Save(Const.REPLAY_FILENAME, audioSource.clip, trim:true); // for debug purpose
 
-        // StartCoroutine(NetworkManager.GetManager().ServerPost(transcript, wavBuffer, textErrorGO, resultTextTMP, warningImageGO, resultPanelGO, debugText));
+        StartCoroutine(NetworkManager.GetManager().ServerPost(transcript, wavBuffer, textErrorGO, resultTextGO, resultPanelGO, debugTextGO));
     }
 
     public IEnumerator LoadAudioClip(string filename, GameObject replayButtonGO)

@@ -9,6 +9,7 @@ public class MainTab : MonoBehaviour
     [SerializeField] GameObject dropShadowBGO;
     [SerializeField] GameObject dropShadowRGO;
     [SerializeField] GameObject textInputPanelGO;
+    [SerializeField] GameObject debugTextGO;
 
     [SerializeField] TMPro.TMP_InputField inputText;
 
@@ -240,6 +241,10 @@ public class MainTab : MonoBehaviour
         // Change the text prompt of PromptText
         textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Did you find a new \nSwedish word?";
 
+        // Clean the debug text
+        debugTextGO.SetActive(false);
+        debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = "";
+
         textInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -904);
 
         dropShadowLGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(-384, -904);
@@ -275,6 +280,10 @@ public class MainTab : MonoBehaviour
 
         // Change the text prompt of PromptText
         textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Type in Swedish, and \nlet's practice!";
+
+        // Clean the debug text, if any
+        debugTextGO.SetActive(false);
+        debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = "";
 
         textInputPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -692);
 
@@ -320,6 +329,10 @@ public class MainTab : MonoBehaviour
         // Clean the input text
         inputText.text = "";
 
+        // Clean the debug text, if any
+        debugTextGO.SetActive(false);
+        debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = "";
+
         // Disable the startButtonGO
         startButtonGO.SetActive(false);
 
@@ -337,10 +350,11 @@ public class MainTab : MonoBehaviour
 
     private IEnumerator StopRecordingAndProcessAudio()
     {
-        // AudioManager.GetManager().GetAudioAndPost(transcript, textInputPanelGO, textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>(), 
-        //                                         textInputPanelGO.transform.Find("WarningImage").gameObject, textInputPanelGO.transform.Find("ResultPanel").gameObject, 
-        //                                         textInputPanelGO.transform.Find("DebugText").GetComponent<TMPro.TextMeshProUGUI>());
-        AudioManager.GetManager().GetAudioAndPost(transcript);
+        GameObject textErrorGO = textInputPanelGO.transform.Find("PromptText").gameObject;
+        GameObject resultTextGO = textInputPanelGO.transform.Find("ReadAloudText").gameObject;        
+
+        AudioManager.GetManager().GetAudioAndPost(transcript, textErrorGO, resultTextGO,  
+                                                null, debugTextGO);        
 
         replayButtonGO.transform.GetComponent<Button>().onClick.RemoveAllListeners();
         yield return AudioManager.GetManager().LoadAudioClip(Const.REPLAY_FILENAME, replayButtonGO);                

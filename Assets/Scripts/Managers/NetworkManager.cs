@@ -3,9 +3,16 @@ using System.Collections;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+/// <summary>
+/// The NetworkManager class is responsible for managing network operations related to ASR (Automatic Speech Recognition).
+/// It handles sending audio data and transcripts to the ASR server and processes the server's response.
+/// This class ensures that only one instance of NetworkManager exists at any time (singleton pattern).
+/// </summary>
 public class NetworkManager : MonoBehaviour
 {
-    [SerializeField] GameObject surveyPopUpPanelGO;    
+    
+	// This variable is not used in the current version
+	// [SerializeField] GameObject surveyPopUpPanelGO;    
     
     static NetworkManager netWorkManager;
 	// This is the URL to the ASR server
@@ -35,8 +42,8 @@ public class NetworkManager : MonoBehaviour
 		return netWorkManager;
 	}
 
-    public IEnumerator ServerPost(string transcript, byte[] wavBuffer, GameObject textErrorGO, TMPro.TextMeshProUGUI resultTextTMP, GameObject warningImageGO,
-								GameObject resultPanelGO, TMPro.TextMeshProUGUI debugText)
+    public IEnumerator ServerPost(string transcript, byte[] wavBuffer, GameObject textErrorGO, GameObject resultTextGO,
+								GameObject resultPanelGO, GameObject debugTextGO)
     
 	{
         WWWForm form = new WWWForm();
@@ -54,11 +61,11 @@ public class NetworkManager : MonoBehaviour
         if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
 			Debug.Log(www.error);
 			if (!string.IsNullOrEmpty(www.error)) {
-				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text =  www.downloadHandler.text ?? www.error;
+				// textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text =  www.downloadHandler.text ?? www.error;
+				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text =  "Server error!";
 			} else {
 				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Network error!";
-			}
-			textErrorGO.SetActive(true);
+			}			
 
 			throw new System.Exception(www.downloadHandler.text ?? www.error);
 		} else {
@@ -67,8 +74,7 @@ public class NetworkManager : MonoBehaviour
 			Debug.Log(www.downloadHandler.text);
 
 			if (www.downloadHandler.text == "invalid credentials") {
-				Debug.Log("invalid credentials");
-				textErrorGO.SetActive(true);
+				Debug.Log("invalid credentials");				
 				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "invalid credentials";
 
 				yield break;
@@ -76,13 +82,12 @@ public class NetworkManager : MonoBehaviour
 
 			if (www.downloadHandler.text == "this account uses auth0") {
 				Debug.Log("this account uses auth0");
-				textErrorGO.SetActive(true);
 				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "this account uses auth0";
 				yield break;
 			}
         }
 		
-		textErrorGO.SetActive(false);
+		textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Here are your results. \n Great effort!";
 		asrResult = JsonUtility.FromJson<ASRResult>(www.downloadHandler.text);
 
 
@@ -94,11 +99,13 @@ public class NetworkManager : MonoBehaviour
 		// it's safe to set onclick on result text on it's main panel
 		// that's why we can set the Panel to active		
 		string textResult = TextUtils.FormatTextResult(transcript, asrResult.score);		
-		resultTextTMP.text = textResult;
+		resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = textResult;
 		
 		// Update the debug text
-		debugText.text = asrResult.prediction;		
+		debugTextGO.SetActive(true);
+		debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = asrResult.prediction;		
 		
+		// This function is not active in the current version
 		if (resultPanelGO != null) resultPanelGO.SetActive(true);
 
 		//checkSurVey();
