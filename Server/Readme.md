@@ -1,0 +1,1 @@
+This folder contain the code for the server. It have nothing to do with Unity but without it the core function of the mobile app won't run.

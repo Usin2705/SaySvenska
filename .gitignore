@@ -83,3 +83,4 @@ user.keystore
 # Ignore temp build files
 /.utmp/*
 SaySvenska_BurstDebugInformation_DoNotShip/*
+Server/models/*

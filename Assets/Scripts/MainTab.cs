@@ -258,6 +258,9 @@ public class MainTab : MonoBehaviour
         recordButtonGO.SetActive(false);
         againButtonGO.SetActive(false);
         replayButtonGO.SetActive(false);
+
+        // Disable the stop button
+        stopButtonGO.SetActive(false);
     }
 
     public void SetupFocusTextUI()
