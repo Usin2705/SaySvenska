@@ -101,6 +101,11 @@ public class NetworkManager : MonoBehaviour
 		string textResult = TextUtils.FormatTextResult(transcript, asrResult.score);		
 		resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = textResult;
 		
+		// Set resultTextGO to bold following design guideline
+		resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().fontStyle = TMPro.FontStyles.Bold;
+		
+		
+		
 		// Update the debug text
 		debugTextGO.SetActive(true);
 		debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = asrResult.prediction;		

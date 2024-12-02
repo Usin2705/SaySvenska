@@ -326,6 +326,12 @@ public class MainTab : MonoBehaviour
         textInputPanelGO.transform.Find("ReadAloudText").gameObject.SetActive(true);
         textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().text = inputText.text;
         
+        // Set ReadAloudText to normal following design guideline
+        // ReadAloudText is the text that will be read aloud
+        // It will be set to bold when the result is shown
+		 textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().fontStyle = TMPro.FontStyles.Normal;
+
+        
         // Clean the input text
         inputText.text = "";
 
