@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 09ae2daa13c87f9439fd5157c403cb7b
+guid: 771a1f7c9e3478649924f85699de3ab1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3613523033290427499
-    second: SaySvenska-logo-512_0
+      213: 7720938350218106416
+    second: SaySvenska-logo-512_extra_padding_0
   - first:
-      213: 4130176305158757138
-    second: SaySvenska-logo-512_1
+      213: 3177150347591572397
+    second: SaySvenska-logo-512_extra_padding_1
   - first:
-      213: -1463136719891027373
-    second: SaySvenska-logo-512_2
+      213: -118529950024687685
+    second: SaySvenska-logo-512_extra_padding_2
   - first:
-      213: 5507562882019198601
-    second: SaySvenska-logo-512_3
+      213: -5252174454556594089
+    second: SaySvenska-logo-512_extra_padding_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +55,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -84,7 +84,7 @@ TextureImporter:
     maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -135,13 +135,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SaySvenska-logo-512_0
+      name: SaySvenska-logo-512_extra_padding_0
       rect:
         serializedVersion: 2
-        x: 128
-        y: 198
-        width: 119
-        height: 235
+        x: 169
+        y: 214
+        width: 83
+        height: 163
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,20 +150,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b6cc7f2bd00d52230800000000000000
-      internalID: 3613523033290427499
+      spriteID: 036d071b588462b60800000000000000
+      internalID: 7720938350218106416
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SaySvenska-logo-512_1
+      name: SaySvenska-logo-512_extra_padding_1
       rect:
         serializedVersion: 2
-        x: 263
-        y: 314
-        width: 119
-        height: 119
+        x: 262
+        y: 294
+        width: 83
+        height: 83
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -172,20 +172,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 21b19b88775515930800000000000000
-      internalID: 4130176305158757138
+      spriteID: dab543a6861871c20800000000000000
+      internalID: 3177150347591572397
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SaySvenska-logo-512_2
+      name: SaySvenska-logo-512_extra_padding_2
       rect:
         serializedVersion: 2
-        x: 263
-        y: 82
-        width: 119
-        height: 234
+        x: 262
+        y: 134
+        width: 83
+        height: 162
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,20 +194,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35aa011c7e4e1bbe0800000000000000
-      internalID: -1463136719891027373
+      spriteID: bbf988173a5ea5ef0800000000000000
+      internalID: -118529950024687685
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SaySvenska-logo-512_3
+      name: SaySvenska-logo-512_extra_padding_3
       rect:
         serializedVersion: 2
-        x: 128
-        y: 82
-        width: 119
-        height: 119
+        x: 169
+        y: 133
+        width: 83
+        height: 84
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,8 +216,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 98681e8c24bce6c40800000000000000
-      internalID: 5507562882019198601
+      spriteID: 750f5c929278c17b0800000000000000
+      internalID: -5252174454556594089
       vertices: []
       indices: 
       edges: []
@@ -226,7 +226,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -236,10 +236,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SaySvenska-logo-512_0: 3613523033290427499
-      SaySvenska-logo-512_1: 4130176305158757138
-      SaySvenska-logo-512_2: -1463136719891027373
-      SaySvenska-logo-512_3: 5507562882019198601
+      SaySvenska-logo-512_extra_padding_0: 7720938350218106416
+      SaySvenska-logo-512_extra_padding_1: 3177150347591572397
+      SaySvenska-logo-512_extra_padding_2: -118529950024687685
+      SaySvenska-logo-512_extra_padding_3: -5252174454556594089
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -547,7 +547,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 12345 78910 12 17192123 26283032 353739 4244464850
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7e150eadffc404cb3908a37f04717338, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 04c1af8fa2ec84ae3997420e24270da0, type: 2}
   m_sharedMaterial: {fileID: -3474818017260188934, guid: 7e150eadffc404cb3908a37f04717338, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -613,7 +613,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &279342460
@@ -812,7 +812,8 @@ MonoBehaviour:
   againButtonGO: {fileID: 985610055}
   replayButtonGO: {fileID: 566993198}
   recordButtonGO: {fileID: 998242861}
-  stopButtonGO: {fileID: 1432082048}
+  stopButtonPanelGO: {fileID: 1432082048}
+  stopButtonGO: {fileID: 377024578}
 --- !u!1 &338921885
 GameObject:
   m_ObjectHideFlags: 0
@@ -976,7 +977,7 @@ GameObject:
   - component: {fileID: 377024581}
   - component: {fileID: 377024580}
   m_Layer: 5
-  m_Name: PauseIcon
+  m_Name: StopButtonGO
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4488,7 +4489,7 @@ GameObject:
   - component: {fileID: 1432082051}
   - component: {fileID: 1432082050}
   m_Layer: 5
-  m_Name: StopButton
+  m_Name: StopButtonPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

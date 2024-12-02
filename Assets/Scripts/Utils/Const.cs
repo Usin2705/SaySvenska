@@ -59,9 +59,9 @@ public static class Const
     // of the text to be recorded
     public const float SEC_PER_CHAR = 0.12f;
 
-    // Always provide at least 1.5s extra time for recording
+    // Always provide at least 1.8s extra time for recording
     // to avoid the speaker speak too slow and the recording stop
-    public const float EXTRA_TIME = 1.5f;
+    public const float EXTRA_TIME = 1.8f;
 
     // ===================== NETWORK CONST =====================
 

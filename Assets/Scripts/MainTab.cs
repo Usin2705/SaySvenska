@@ -19,6 +19,7 @@ public class MainTab : MonoBehaviour
 
     [SerializeField] GameObject recordButtonGO;
 
+    [SerializeField] GameObject stopButtonPanelGO;
     [SerializeField] GameObject stopButtonGO;
 
     private float countdownTime = 6.0f;
@@ -60,9 +61,8 @@ public class MainTab : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Only run this code if the stopButton  is active
-        // Only run this code if the progress bar is active
-        if (stopButtonGO.activeSelf == true) {
+        // Only run this code if the stopButtonGO  is active        
+        if (stopButtonPanelGO.activeSelf == true) {
             UpdateProgressCircle();            
         } 
     }
@@ -94,29 +94,31 @@ public class MainTab : MonoBehaviour
         // Most important, disable the stopButtonGO (it will disable the progress circle call in Update())
         if (currentProgress <= 0) 
         {
-            currentTime = 0;
-            stopButtonGO.SetActive(false);            
-            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_0");                                    
-            
-            // Once timer finish, call the external method to stop the recording
-            // and wait for the audio to be processed (coroutine) and then enable the replay button
-            StartCoroutine(StopRecordingAndProcessAudio());
+            StopTimer();
         }
         else if (currentProgress <= 0.05)
         {
-            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_4");                                    
+            stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_4");                                    
         } else if (currentProgress < 0.25)
         {
-            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_3");                        
+            stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_3");                        
         } else if (currentProgress < 0.5)
         {
-            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_2");            
+            stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_2");            
         } else if (currentProgress < 0.75)
         {
-            stopButtonGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_1");
+            stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_1");
         } 
     }
 
+    /// <summary>
+    /// Initializes and starts the recording timer based on the length of the transcript.
+    /// </summary>
+    /// <remarks>
+    /// The length of the audio clip depends on the number of characters in the text to be recorded plus an extra time.
+    /// The countdown time is capped at a maximum recording time.
+    /// The method hides the recordButton, shows the countdown progress circle and the stopButton, and registers the OnClick event for the stop button.
+    /// </remarks>
     private void StartTimer() 
     {
         // The length of the audio clip depend on the number of characters
@@ -133,9 +135,40 @@ public class MainTab : MonoBehaviour
         recordButtonGO.SetActive(false);
 
         // Show the countdown progress circle and the stop button
-        stopButtonGO.SetActive(true);
+        stopButtonPanelGO.SetActive(true);
+        // Register the OnClick event for the stop button
+        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnStopRecordButtonClick(); });
+    }       
+
+    /// <summary>
+    /// Stops the recording timer and resets the UI elements associated with the timer.
+    /// </summary>
+    /// <remarks>
+    /// This method stops the countdown timer by setting the <c>currentTime</c> to 0 and disabling the <c>stopButtonGO</c>.
+    /// It also removes all listeners from the stop button and resets its source image to the default.
+    /// After stopping the timer, it calls the <c>StopRecordingAndProcessAudio</c> coroutine to handle the recording and processing of the audio.
+    /// </remarks>
+    private void StopTimer()
+    {
+        // Stop the timer
+        currentTime = 0;
+        
+        // Disable the stopButtonGO
+        stopButtonPanelGO.SetActive(false);
+        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
+
+        // Reset the stopButtonGO source image to the default
+        stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_0");
+
+        // Once timer finish, call the external method to stop the recording
+        // and wait for the audio to be processed (coroutine) and then enable the replay button
+        StartCoroutine(StopRecordingAndProcessAudio());
     }
 
+    private void OnStopRecordButtonClick()
+    {
+        StopTimer();
+    }
     private void OnInputTextFocus(TMPro.TMP_InputField inputField)
     {
         Debug.Log(inputField.name + " is focused.");
@@ -265,7 +298,9 @@ public class MainTab : MonoBehaviour
         replayButtonGO.SetActive(false);
 
         // Disable the stop button
-        stopButtonGO.SetActive(false);
+        stopButtonPanelGO.SetActive(false);
+        // Remove all listeners from the stop button
+        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
     }
 
     public void SetupFocusTextUI()
