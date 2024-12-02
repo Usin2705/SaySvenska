@@ -21,6 +21,7 @@ public class MainTab : MonoBehaviour
 
     [SerializeField] GameObject stopButtonPanelGO;
     [SerializeField] GameObject stopButtonGO;
+    [SerializeField] GameObject waitIconGO;
 
     private float countdownTime = 6.0f;
     private float currentTime = 6.0f;
@@ -64,7 +65,15 @@ public class MainTab : MonoBehaviour
         // Only run this code if the stopButtonGO  is active        
         if (stopButtonPanelGO.activeSelf == true) {
             UpdateProgressCircle();            
-        } 
+        }        
+
+        // Rotate the wait icon if it is active every frame        
+        // only less half 1 degree per 2 frames
+        if (waitIconGO.activeSelf == true) {
+            if (Time.frameCount % 2 == 0) {
+            waitIconGO.transform.Rotate(0, 0, -0.5f);
+            }
+        }
     }
 
     /// <summary>
@@ -153,12 +162,7 @@ public class MainTab : MonoBehaviour
         // Stop the timer
         currentTime = 0;
         
-        // Disable the stopButtonGO
-        stopButtonPanelGO.SetActive(false);
-        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
-
-        // Reset the stopButtonGO source image to the default
-        stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_0");
+        ResetStopButton();
 
         // Once timer finish, call the external method to stop the recording
         // and wait for the audio to be processed (coroutine) and then enable the replay button
@@ -297,10 +301,9 @@ public class MainTab : MonoBehaviour
         againButtonGO.SetActive(false);
         replayButtonGO.SetActive(false);
 
-        // Disable the stop button
-        stopButtonPanelGO.SetActive(false);
-        // Remove all listeners from the stop button
-        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
+        ResetStopButton();
+
+        ResetWaitIcon();
     }
 
     public void SetupFocusTextUI()
@@ -348,6 +351,29 @@ public class MainTab : MonoBehaviour
         // Disable the recording button        
         recordButtonGO.SetActive(false);
         againButtonGO.SetActive(false);
+
+        ResetStopButton();
+
+        ResetWaitIcon();
+    }
+
+    private void ResetStopButton()
+    {
+        // Disable the stop button
+        stopButtonPanelGO.SetActive(false);
+        // Remove all listeners from the stop button
+        stopButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.RemoveAllListeners();
+        // Reset the stopButtonGO source image to the default
+        stopButtonPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/ic_timer_0");
+    }
+
+    private void ResetWaitIcon()
+    {
+        // Disable the wait icon
+        waitIconGO.SetActive(false);
+        // Reset the wait icon rotation
+        // Quaternion.identity is the default rotation (0, 0, 0)
+        waitIconGO.transform.rotation = Quaternion.identity; 
     }
 
     public void SetUpReadAloudUI()
@@ -381,23 +407,28 @@ public class MainTab : MonoBehaviour
         recordButtonGO.SetActive(true);
         againButtonGO.SetActive(true);
     }
-
-    private void OnFinnishTimer()
-    {
-        // Once timer finish, call the external method to stop the recording
-        // and wait for the audio to be processed (coroutine) and then enable the replay button
-        StartCoroutine(StopRecordingAndProcessAudio());
-    }
-
     private IEnumerator StopRecordingAndProcessAudio()
     {
         GameObject textErrorGO = textInputPanelGO.transform.Find("PromptText").gameObject;
-        GameObject resultTextGO = textInputPanelGO.transform.Find("ReadAloudText").gameObject;        
+        GameObject resultTextGO = textInputPanelGO.transform.Find("ReadAloudText").gameObject;            
+        
+        // Toggle the loading 
+        waitIconGO.SetActive(true);
 
-        AudioManager.GetManager().GetAudioAndPost(transcript, textErrorGO, resultTextGO,  
-                                                null, debugTextGO);        
+        // Turn off the replay button
+        // It will be a mess if the user click the replay button while the server is still processing
+        againButtonGO.SetActive(false);    
+
+        AudioManager.GetManager().GetAudioAndPost(transcript, textErrorGO, resultTextGO, null, debugTextGO, OnServerDone);
 
         replayButtonGO.transform.GetComponent<Button>().onClick.RemoveAllListeners();
-        yield return AudioManager.GetManager().LoadAudioClip(Const.REPLAY_FILENAME, replayButtonGO);                
+        yield return AudioManager.GetManager().LoadAudioClip(Const.REPLAY_FILENAME, replayButtonGO);
+    }
+
+    private void OnServerDone()
+    {
+        ResetWaitIcon();
+        recordButtonGO.SetActive(true);
+        againButtonGO.SetActive(true);
     }
 }

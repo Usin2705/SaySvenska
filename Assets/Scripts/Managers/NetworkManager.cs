@@ -43,7 +43,7 @@ public class NetworkManager : MonoBehaviour
 	}
 
     public IEnumerator ServerPost(string transcript, byte[] wavBuffer, GameObject textErrorGO, GameObject resultTextGO,
-								GameObject resultPanelGO, GameObject debugTextGO)
+								GameObject resultPanelGO, GameObject debugTextGO, System.Action OnServerDone = null)
     
 	{
         WWWForm form = new WWWForm();
@@ -51,69 +51,72 @@ public class NetworkManager : MonoBehaviour
         form.AddField("transcript", transcript);
 		form.AddField("model_code", "1");
 
-        UnityWebRequest www = UnityWebRequest.Post(asrURL, form);
+		// Use a `using` statement for UnityWebRequest to handle resource cleanup
+		// This is a good practice to avoid memory leaks
+		using (UnityWebRequest uwr = UnityWebRequest.Post(asrURL, form))
+		{
+			uwr.timeout = Const.TIME_OUT_SECS;
+			yield return uwr.SendWebRequest();
 
-		www.timeout = Const.TIME_OUT_SECS;
-		yield return www.SendWebRequest();
+			Debug.Log(uwr.result);
 
-		Debug.Log(www.result);
+			if (uwr.result == UnityWebRequest.Result.ConnectionError || uwr.result == UnityWebRequest.Result.ProtocolError) {
+				Debug.Log(uwr.error);
+				
+				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = string.IsNullOrEmpty(uwr.error) ? "Network error!" : "Server error!";		
+				
+				OnServerDone?.Invoke();
+				throw new System.Exception(uwr.downloadHandler.text ?? uwr.error);
 
-        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError) {
-			Debug.Log(www.error);
-			if (!string.IsNullOrEmpty(www.error)) {
-				// textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text =  www.downloadHandler.text ?? www.error;
-				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text =  "Server error!";
 			} else {
-				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Network error!";
-			}			
+				Debug.Log("Form upload complete!");
 
-			throw new System.Exception(www.downloadHandler.text ?? www.error);
-		} else {
-			Debug.Log("Form upload complete!");
+				Debug.Log(uwr.downloadHandler.text);
 
-			Debug.Log(www.downloadHandler.text);
+				if (uwr.downloadHandler.text == "invalid credentials") {
+					Debug.Log("invalid credentials");				
+					textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "invalid credentials";
+					
+					OnServerDone?.Invoke();
+					yield break;
+				}
 
-			if (www.downloadHandler.text == "invalid credentials") {
-				Debug.Log("invalid credentials");				
-				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "invalid credentials";
-
-				yield break;
+				if (uwr.downloadHandler.text == "this account uses auth0") {
+					Debug.Log("this account uses auth0");
+					textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "this account uses auth0";
+					
+					OnServerDone?.Invoke();
+					yield break;
+				}
 			}
-
-			if (www.downloadHandler.text == "this account uses auth0") {
-				Debug.Log("this account uses auth0");
-				textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "this account uses auth0";
-				yield break;
-			}
-        }
-		
-		textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Here are your results. \n Great effort!";
-		asrResult = JsonUtility.FromJson<ASRResult>(www.downloadHandler.text);
+			
+			textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Here are your results. \n Great effort!";
+			asrResult = JsonUtility.FromJson<ASRResult>(uwr.downloadHandler.text);
 
 
-		// Update text result
-		// This part only update the TextResult text		
-		// is updated (added onclick, show active) in their MainPanel (either MainPanel or ExercisePanel)
+			// Update text result
+			// This part only update the TextResult text		
+			// is updated (added onclick, show active) in their MainPanel (either MainPanel or ExercisePanel)
 
-		// After TextResult text is updated,
-		// it's safe to set onclick on result text on it's main panel
-		// that's why we can set the Panel to active		
-		string textResult = TextUtils.FormatTextResult(transcript, asrResult.score);		
-		resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = textResult;
-		
-		// Set resultTextGO to bold following design guideline
-		resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().fontStyle = TMPro.FontStyles.Bold;
-		
-		
-		
-		// Update the debug text
-		debugTextGO.SetActive(true);
-		debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = asrResult.prediction;		
-		
-		// This function is not active in the current version
-		if (resultPanelGO != null) resultPanelGO.SetActive(true);
+			// After TextResult text is updated,
+			// it's safe to set onclick on result text on it's main panel
+			// that's why we can set the Panel to active		
+			string textResult = TextUtils.FormatTextResult(transcript, asrResult.score);		
+			resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = textResult;
+			
+			// Set resultTextGO to bold following design guideline
+			resultTextGO.GetComponent<TMPro.TextMeshProUGUI>().fontStyle = TMPro.FontStyles.Bold;			
+			
+			// Update the debug text
+			debugTextGO.SetActive(true);
+			debugTextGO.GetComponent<TMPro.TextMeshProUGUI>().text = asrResult.prediction;		
+			
+			// This function is not active in the current version
+			if (resultPanelGO != null) resultPanelGO.SetActive(true);
 
-		//checkSurVey();
+			//checkSurVey();			
+		}
+		OnServerDone?.Invoke();
     }	
 
 	// public void checkSurVey() {
