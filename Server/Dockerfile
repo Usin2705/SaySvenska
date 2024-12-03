@@ -5,9 +5,7 @@ FROM python:3.12.2
 RUN apt-get update && \
     apt-get install -y \
         nano \
-        ffmpeg \
-        libsndfile1 \
-        libsndfile1-dev
+        ffmpeg 
 
 # Keeps Python from generating .pyc files in the container
 # Turns off buffering for easier container logging
@@ -21,9 +19,6 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-# Install SoundFile Python library
-RUN pip install soundfile
 
 # Only copy relevant files and folders to /app folder
 COPY ./models/ /app/models/

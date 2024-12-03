@@ -245,10 +245,14 @@ public class MainTab : MonoBehaviour
         // Technically, this should be done in the OnStartButtonClickDoneText method, but it is done here 
         // to ensure that the text is captured before the recording starts and to be consistent with the
         // original code.
-        transcript = textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().text;
+        // Use GetParsedText(): This returns the plain text content with all rich text formatting removed.
+        // Since we are format result with richtext, this is the best method to use. (in case user record after the result is shown)
+        transcript = textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().GetParsedText();
+        Debug.Log("Transcript: " + transcript);
 
         // Santinize the text
-        //transcript = TextUtils.SantinizeText(transcript);
+        transcript = TextUtils.SantinizeText(transcript);
+        Debug.Log("Sanitized Transcript: " + transcript);
 
         // Start recording
         AudioManager.GetManager().StartRecording(Const.MAX_REC_TIME);

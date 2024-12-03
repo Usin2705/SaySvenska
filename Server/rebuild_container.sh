@@ -1,4 +1,6 @@
 #!/bin/bash
+# assume that your user is already linger with
+# sudo loginctl enable-linger USERNAME
 
 echo "Stop current container and pod..."
 systemctl --user stop pod-saysvenska.service
