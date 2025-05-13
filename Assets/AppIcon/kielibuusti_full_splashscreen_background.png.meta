@@ -160,7 +160,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      kielibuusti_full_splashscreen_background_0: -1177963401867373210
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

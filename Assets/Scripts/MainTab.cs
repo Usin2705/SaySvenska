@@ -275,12 +275,12 @@ public class MainTab : MonoBehaviour
         topPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar");
 
         // Move the top panel to the top of the screen
-        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -280);
+        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         // Set the default size for the top panel
         topPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 560);
 
         // Change the text prompt of PromptText
-        textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Did you find a new \nSwedish word?";
+        textInputPanelGO.GetComponentInChildren<TMPro.TextMeshProUGUI>().text = "Did you find a new Swedish word or sentence?";
 
         // Clean the debug text
         debugTextGO.SetActive(false);
@@ -316,7 +316,7 @@ public class MainTab : MonoBehaviour
         topPanelGO.GetComponent<UnityEngine.UI.Image>().sprite = Resources.Load<Sprite>("app_icons/top_bar_noicon");
 
         // Move the top panel to the top of the screen
-        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -125);
+        topPanelGO.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         // Set the default size for the top panel
         topPanelGO.GetComponent<RectTransform>().sizeDelta = new Vector2(900, 250);
 
