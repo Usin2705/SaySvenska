@@ -1,12 +1,12 @@
 import mimetypes
-from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC, AutoFeatureExtractor
-from flask import Flask, jsonify, request, Response
+import os
+import tempfile
+import logging
+
+from flask import Flask, jsonify, request
 import torch
 import torchaudio
-import os
-import logging
-import Levenshtein
-import tempfile
+from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
 
 import utils.myutils as myutils
 
@@ -14,11 +14,11 @@ print("App start!")
 
 app = Flask(__name__)
 
-path_model = "./models/nhan_wav2vec2-xls-r-300m-svensk-ent-010_3_to_25"
+PATH_MODEL = "./models/nhan_wav2vec2-xls-r-300m-svensk_ent-020_2to25"
 SAMPLING_RATE = 16000
 
-processor = Wav2Vec2Processor.from_pretrained(path_model)
-model = Wav2Vec2ForCTC.from_pretrained(path_model)
+processor = Wav2Vec2Processor.from_pretrained(PATH_MODEL)
+model = Wav2Vec2ForCTC.from_pretrained(PATH_MODEL)
 
 @app.route("/api/app/test_post", methods=['POST'])
 def test_post():
@@ -28,23 +28,25 @@ def test_post():
 @app.route("/test")
 def test_func():
     
-    return "Success"    
+    return "Success2"    
 
 
 @app.route("/wav2vec2/models/score", methods=['POST'])
 def pronunc_eval_unity():
     try:
-        file = request.files['file']    
-        # file.save(os.path.join("/tmp/", FILE_NAME + ".wav"))
-        # print(f'file info: {file}')
+        # ------------------------------------------------------------------
+        # 1. ── housekeeping
+        # ------------------------------------------------------------------
+        wav_file = request.files['file']    
+        transcript_raw = request.form["transcript"].lower()
+        transcript     = myutils.textSanitize(transcript_raw) 
 
-        transcript = request.form['transcript'].lower()
-        
-        transcript = myutils.textSanitize(transcript)  
+        temperature = float(request.form.get("temperature", 10))
+        topk        = int(request.form.get("topk", 3))
 
-        vocab = processor.tokenizer.get_vocab()    
-
-        with torch.inference_mode():
+        # ------------------------------------------------------------------
+        # 2. ── audio-to-logits
+        # ------------------------------------------------------------------        
             # waveform, sr = torchaudio.load("/tmp/" + FILE_NAME + ".wav")
             # Loading directly require FFmpeg libraries (>=4.1, <4.4)            
             # We can also save it temporarity
@@ -57,9 +59,9 @@ def pronunc_eval_unity():
             # os.remove(tmp_path)
             # waveform, sr = torchaudio.load(tmp_path)    
 
-            waveform, sr = torchaudio.load(file)
-            
-            waveform = torchaudio.transforms.Resample(sr, SAMPLING_RATE)(waveform)  
+        with torch.inference_mode():
+            waveform, sr = torchaudio.load(wav_file)
+            waveform     = torchaudio.transforms.Resample(sr, SAMPLING_RATE)(waveform)  
                     
         # Because the server is low capacity, it can't handle long audio request
         # Server must refuse to load the model if audio length is longer than 8 seconds
@@ -70,7 +72,7 @@ def pronunc_eval_unity():
         audio_length = waveform.shape[1] / SAMPLING_RATE
 
         if audio_length > 8.2:
-            return jsonify({"error": "Audio is too long. Please provide an audio file that is less than 8 seconds."}), 400
+            return jsonify({"error": "Audio is too long. Max length is 8 s."}), 400
 
         # Since the recordings are often stereo with 2 channels,
         # while wav2vec2 input expect 1 channel. We can extract only 1 channel for prediction,
@@ -81,55 +83,68 @@ def pronunc_eval_unity():
         # input_audio = input_audio[:, 0]                       
         
         # We can also you mean to use mean to get the mean signal as input audio for the model
-        input_audio = waveform.mean(dim=0)
-
-        input_values = processor(input_audio, sampling_rate=SAMPLING_RATE, return_tensors="pt").input_values
+        input_audio  = waveform.mean(dim=0)   # mono
+        input_values = processor(
+            input_audio,
+            sampling_rate=SAMPLING_RATE,
+            return_tensors="pt",
+        ).input_values
 
         with torch.no_grad():
-            logits = model(input_values).logits
+            logits = model(input_values).logits                     # [1, T, vocab]
 
-        predicted_ids = torch.argmax(logits, dim=-1)
-        prediction = processor.batch_decode(predicted_ids)[0]
-        tokens = [vocab[c] for c in transcript]     
+        # ------------------------------------------------------------------
+        # 3. ── temperature scaling  ➜  top-k normalisation
+        # ------------------------------------------------------------------
+        logits_scaled   = myutils.temperature_scaling(logits, temperature)
+        probs_scaled    = torch.softmax(logits_scaled, dim=-1)     # still [1, T, vocab]
+        probs_topk_norm = myutils.topk_normalize(probs_scaled, topk=topk)
+        emission        = torch.log(probs_topk_norm[0])            # [T, vocab]  ← used below
 
-        log_softmax = torch.log_softmax(logits, dim=-1)
-        emission = log_softmax[0].cpu().detach()   
 
-        trellis = myutils.get_trellis(emission, tokens, blank_id=model.config.pad_token_id)     
-        path = myutils.backtrack(trellis, emission, tokens, blank_id=model.config.pad_token_id)    
+        # ------------------------------------------------------------------
+        # 4. ── forced-alignment & scoring
+        # ------------------------------------------------------------------
+        vocab = processor.tokenizer.get_vocab()
+        tokens   = [vocab[c] for c in transcript]
+
+        trellis  = myutils.get_trellis(emission, tokens, blank_id=model.config.pad_token_id)
+        path     = myutils.backtrack(trellis, emission, tokens, blank_id=model.config.pad_token_id)
         segments = myutils.merge_repeats(transcript, path)       
 
-        fa_score = []
+        
+        # ------------------------------------------------------------------
+        # 5. ── word-level calibration of letter scores
+        #        (each letter takes the lowest score of that letter in
+        #         its own word)
+        # ------------------------------------------------------------------
+        fa_score = myutils.word_level_min_scores(segments, transcript)
 
-        for seg in segments:
-            fa_score.append(seg.score)
 
-        #logging.warning(f"Prediction {prediction}, Score {fa_score}")
+        # ------------------------------------------------------------------
+        # 6. ── decode + Levenshtein
+        # ------------------------------------------------------------------
+        pred_ids  = torch.argmax(logits, dim=-1)
+        prediction = processor.batch_decode(pred_ids)[0]
 
-        normal_trans = transcript.replace('|', ' ')
-        ops = Levenshtein.editops(normal_trans, prediction)
+        normal_transcript = transcript.replace("|", " ")
+        ops = myutils.edit_ops(normal_transcript, prediction)   # thin wrapper around Levenshtein
 
-        print(f'Using model: {path_model}')
-        print(f'Transcript: {normal_trans}')
-        print(f'Prediction: {prediction}')
-        print(f'Score: {fa_score}')        
-        print(f'OPS: {ops}')
-
-        # Convert back to easier list for Unity
-        ops_list = []
-        for item in ops:
-            ops_list.append({"ops":item[0], "tran_index":item[1], "pred_index":item[2]})
-
-        # Success response with status code 200
-        return jsonify({"levenshtein": ops_list, "prediction": prediction, "score": fa_score}), 200  
+        # ------------------------------------------------------------------
+        # 7. ── response
+        # ------------------------------------------------------------------
+        return jsonify({
+            "levenshtein": ops,
+            "prediction" : prediction,
+            "score"      : fa_score,
+        }), 200
     
+    # ----------------------------------------------------------------------
     except ValueError as e:
-        # Invalid client request
         return jsonify({"error": str(e)}), 400
-    
     except Exception as e:
-        # Catch all other unexpected exceptions and return a 500 response
-        return jsonify(error=f"An unexpected error occurred: {str(e)}"), 500
+        logging.exception(e)
+        return jsonify({"error": f"Unexpected error: {e}"}), 500
 
 if __name__ == '__main__':
     server_port = os.environ.get('PORT', '8080')

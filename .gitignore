@@ -85,3 +85,4 @@ user.keystore
 SaySvenska_BurstDebugInformation_DoNotShip/*
 Server/models/*
 Assets/Scripts/Utils/Secret.cs
+Server/utils/utils/__pycache__/*
