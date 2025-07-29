@@ -90,7 +90,7 @@ public class NetworkManager : MonoBehaviour
 				}
 			}
 			
-			textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Here are your results. \n Great effort!";
+			textErrorGO.GetComponent<TMPro.TextMeshProUGUI>().text = "Here are your results:";
 			asrResult = JsonUtility.FromJson<ASRResult>(uwr.downloadHandler.text);
 
 

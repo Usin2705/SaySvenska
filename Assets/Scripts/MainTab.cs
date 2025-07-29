@@ -220,26 +220,26 @@ public class MainTab : MonoBehaviour
     /// </summary>
     private void OnStartButtonClick()
     {
-        Debug.Log("Start button clicked to focus on EditText.");
+        //Debug.Log("Start button clicked to focus on EditText.");
         if (inputText.text.Length > 0)
         {
-            Debug.Log(inputText.name + " text finished: " + inputText.text);
+            //Debug.Log(inputText.name + " text finished: " + inputText.text);
             OnStartButtonClickDoneText();
         } else {
             inputText.Select();
-            Debug.Log(inputText.name + " text finished but there is nothing: " + inputText.text);
+            //Debug.Log(inputText.name + " text finished but there is nothing: " + inputText.text);
         }
     }
 
     private void OnStartButtonClickDoneText()
     {
-        Debug.Log("Start button clicked to finish EditText.");
+        //Debug.Log("Start button clicked to finish EditText.");
         SetUpReadAloudUI();
     }
 
     private void OnRecordButtonClick() 
     {
-        Debug.Log("Record button clicked.");
+        //Debug.Log("Record button clicked.");
         
         // Get the text from the ReadAloudText and store it in the transcript variable
         // Technically, this should be done in the OnStartButtonClickDoneText method, but it is done here 
@@ -248,11 +248,11 @@ public class MainTab : MonoBehaviour
         // Use GetParsedText(): This returns the plain text content with all rich text formatting removed.
         // Since we are format result with richtext, this is the best method to use. (in case user record after the result is shown)
         transcript = textInputPanelGO.transform.Find("ReadAloudText").GetComponent<TMPro.TextMeshProUGUI>().GetParsedText();
-        Debug.Log("Transcript: " + transcript);
+        //Debug.Log("Transcript: " + transcript);
 
         // Santinize the text
         transcript = TextUtils.SantinizeText(transcript);
-        Debug.Log("Sanitized Transcript: " + transcript);
+        //Debug.Log("Sanitized Transcript: " + transcript);
 
         // Start recording
         AudioManager.GetManager().StartRecording(Const.MAX_REC_TIME);
@@ -262,7 +262,7 @@ public class MainTab : MonoBehaviour
 
     private void OnAgainButtonClick()
     {
-        Debug.Log("Again button clicked.");
+        //Debug.Log("Again button clicked.");
         SetupFocusTextUI();
 
         // Refocus on the input text
