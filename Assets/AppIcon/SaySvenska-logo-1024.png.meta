@@ -1,19 +1,19 @@
 fileFormatVersion: 2
-guid: 09ae2daa13c87f9439fd5157c403cb7b
+guid: 831dfa2cfc1614a68a400fbe145855d1
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3613523033290427499
-    second: SaySvenska-logo-512_0
+      213: 3823343985735511453
+    second: SaySvenska-logo-1024_0
   - first:
-      213: 4130176305158757138
-    second: SaySvenska-logo-512_1
+      213: 6250654557549953273
+    second: SaySvenska-logo-1024_1
   - first:
-      213: -1463136719891027373
-    second: SaySvenska-logo-512_2
+      213: -6711382949178072404
+    second: SaySvenska-logo-1024_2
   - first:
-      213: 5507562882019198601
-    second: SaySvenska-logo-512_3
+      213: -3221972462292779881
+    second: SaySvenska-logo-1024_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -81,7 +81,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 512
+    maxTextureSize: 1024
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -106,36 +106,10 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
     buildTarget: iOS
-    maxTextureSize: 512
+    maxTextureSize: 1024
     resizeAlgorithm: 0
-    textureFormat: -1
+    textureFormat: 50
     textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
@@ -148,12 +122,34 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: SaySvenska-logo-512_0
+      name: SaySvenska-logo-1024_0
       rect:
         serializedVersion: 2
-        x: 128
-        y: 198
-        width: 119
+        x: 258
+        y: 397
+        width: 235
+        height: 467
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d9d24eb191f3f0530800000000000000
+      internalID: 3823343985735511453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SaySvenska-logo-1024_1
+      rect:
+        serializedVersion: 2
+        x: 527
+        y: 629
+        width: 235
         height: 235
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -163,20 +159,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b6cc7f2bd00d52230800000000000000
-      internalID: 3613523033290427499
+      spriteID: 9f00174e339ceb650800000000000000
+      internalID: 6250654557549953273
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SaySvenska-logo-512_1
+      name: SaySvenska-logo-1024_2
       rect:
         serializedVersion: 2
-        x: 263
-        y: 314
-        width: 119
-        height: 119
+        x: 527
+        y: 165
+        width: 235
+        height: 467
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -185,20 +181,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 21b19b88775515930800000000000000
-      internalID: 4130176305158757138
+      spriteID: ca2a0a224c06cd2a0800000000000000
+      internalID: -6711382949178072404
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: SaySvenska-logo-512_2
+      name: SaySvenska-logo-1024_3
       rect:
         serializedVersion: 2
-        x: 263
-        y: 82
-        width: 119
-        height: 234
+        x: 258
+        y: 165
+        width: 235
+        height: 235
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -207,30 +203,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 35aa011c7e4e1bbe0800000000000000
-      internalID: -1463136719891027373
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: SaySvenska-logo-512_3
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 82
-        width: 119
-        height: 119
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 98681e8c24bce6c40800000000000000
-      internalID: 5507562882019198601
+      spriteID: 79cb2f4cd114943d0800000000000000
+      internalID: -3221972462292779881
       vertices: []
       indices: 
       edges: []
@@ -249,10 +223,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      SaySvenska-logo-512_0: 3613523033290427499
-      SaySvenska-logo-512_1: 4130176305158757138
-      SaySvenska-logo-512_2: -1463136719891027373
-      SaySvenska-logo-512_3: 5507562882019198601
+      SaySvenska-logo-1024_0: 3823343985735511453
+      SaySvenska-logo-1024_1: 6250654557549953273
+      SaySvenska-logo-1024_2: -6711382949178072404
+      SaySvenska-logo-1024_3: -3221972462292779881
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
