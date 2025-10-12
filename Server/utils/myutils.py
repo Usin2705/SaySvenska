@@ -1,6 +1,99 @@
 from dataclasses import dataclass, field
 import torch
 import re
+import torch
+import Levenshtein
+
+
+# ──────────────────────────────────────────────────────────────
+#  Probability calibration helpers
+# ──────────────────────────────────────────────────────────────
+def temperature_scaling(logits: torch.Tensor, temperature: float) -> torch.Tensor:
+    """
+    Divide logits by a temperature (>0). Higher T  ➜  softer distribution.
+    """
+    if temperature <= 0:
+        raise ValueError("temperature must be > 0")
+    return logits / temperature
+
+def topk_normalize(probabilities, topk = 3):
+    """
+    Normalize the top-k probabilities in a tensor and leave the rest untouched.
+
+    :param probabilities: The input tensor.
+    :param topk: The number of top elements to consider.
+    :return: A tensor of the same size as the input, but with only the top-k elements 
+    normalized to sum to 1, and the rest left as they were.
+    """
+    # Compute the top-k values and their indices
+    # Only use 1 instead of selecting topk
+    top_values, _ = torch.topk(probabilities, 1)    
+    #sum_prob = torch.sum(top_values, dim=-1, keepdims=True)
+    
+    top_values_norm, top_indices_norm = torch.topk(probabilities, topk)
+    bottom_values, bottom_indice = torch.topk(probabilities, probabilities.shape[-1] - topk, largest=False)
+
+    #top_prob_normalized = top_values_norm / sum_prob 
+    top_prob_normalized = top_values_norm / top_values 
+
+    # Generate the new probability tensor where only topk_norm items are normalized
+    new_probabilities = torch.zeros_like(probabilities)
+
+    # Scatter the normalized top-k values into the result tensor
+    new_probabilities.scatter_(-1, top_indices_norm, top_prob_normalized)
+
+    # Scatter the untouched bottom probabilities
+    new_probabilities.scatter_(-1, bottom_indice, bottom_values)    
+    
+    return new_probabilities
+
+
+# ──────────────────────────────────────────────────────────────
+#  Letter-score post-processing
+# ──────────────────────────────────────────────────────────────
+def word_level_min_scores(segments, transcript: str):
+    """
+    Give every character the SAME score: the lowest segment.score found
+    anywhere inside its word.
+
+    segments   : list from merge_repeats(); len == len(transcript)
+    transcript : text used for alignment (contains '|' as delimiter)
+
+    returns list[float] aligned 1-to-1 with `segments`
+    """
+    if len(segments) != len(transcript):
+        raise ValueError("segments and transcript must be the same length")
+
+    out_scores   = []
+    word_scores  = []          # temp buffer for current word’s segment scores
+
+    for seg, ch in zip(segments, transcript):
+        if ch == '|':          # word boundary  →  flush buffer
+            if word_scores:                       # assign word-level min
+                w_min = min(word_scores)
+                out_scores.extend([w_min] * len(word_scores))
+                word_scores.clear()
+            out_scores.append(seg.score)          # keep delimiter’s own score
+        else:
+            word_scores.append(seg.score)
+
+    # flush last word (no trailing '|')
+    if word_scores:
+        w_min = min(word_scores)
+        out_scores.extend([w_min] * len(word_scores))
+
+    return out_scores
+
+# ──────────────────────────────────────────────────────────────
+#  Tiny wrapper so main file can stay clean
+# ──────────────────────────────────────────────────────────────
+def edit_ops(ref: str, hyp: str):
+    """
+    Returns Levenshtein.editops in a JSON-friendly structure.
+    """
+    ops = Levenshtein.editops(ref, hyp)
+    return [{"ops": op[0], "tran_index": op[1], "pred_index": op[2]} for op in ops]
+
 
 
 def textSanitize(transcript, addPad = True):

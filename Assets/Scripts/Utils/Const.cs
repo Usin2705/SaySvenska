@@ -33,8 +33,8 @@ public static class Const
     *  And some model allow for addtional scale (BAD, AVG, GOOD, EXCELLENT)
     *  
     */
-    public const float BAD_SCORE = 0.20f;
-    public const float AVG_SCORE = 0.60f;
+    public const float BAD_SCORE = 0.30f;
+    public const float AVG_SCORE = 0.80f;
     //public const float GOOD_SCORE = 0.92f;
 
     public const int MAX_CHAR_ALLOWED = 50;
@@ -69,6 +69,10 @@ public static class Const
     public const int TIME_OUT_SECS = 20;
     public const int TIME_OUT_ADVANCE_SECS = 30;
 
-    public const string FILE_NAME_POST= "speech_sample";
-    // =======================================================
+    public const string FILE_NAME_POST = "speech_sample";
+
+    // ===================== PLAYER PREFS CONST =====================
+    public const string PREF_TEMPERATURE = "pref_temperature";
+    
+    public const string PREF_TOPK = "pref_topk";
 }

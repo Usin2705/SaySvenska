@@ -51,6 +51,17 @@ public class NetworkManager : MonoBehaviour
         form.AddField("transcript", transcript);
 		form.AddField("model_code", "1");
 
+		// Get temperature and top_k from PlayerPrefs
+		// If not found, use default value
+		float temperature = PlayerPrefs.GetFloat(Const.PREF_TEMPERATURE, 15.0f);
+		int topk = PlayerPrefs.GetInt(Const.PREF_TOPK, 4);
+
+		// In some locales (e.g., Germany or Finland), 10.5f.ToString() might turn into "10,5" (comma!) — which will break float() in Python.
+		form.AddField("temperature", temperature.ToString(System.Globalization.CultureInfo.InvariantCulture));
+		form.AddField("topk", topk.ToString());
+
+		Debug.Log($"Posting to {asrURL} with temperature {temperature} and topk {topk}");
+
 		// Use a `using` statement for UnityWebRequest to handle resource cleanup
 		// This is a good practice to avoid memory leaks
 		using (UnityWebRequest uwr = UnityWebRequest.Post(asrURL, form))

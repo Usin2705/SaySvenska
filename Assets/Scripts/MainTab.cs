@@ -19,6 +19,8 @@ public class MainTab : MonoBehaviour
 
     [SerializeField] GameObject recordButtonGO;
 
+    [SerializeField] GameObject difficultyToggleGO;
+
     [SerializeField] GameObject stopButtonPanelGO;
     [SerializeField] GameObject stopButtonGO;
     [SerializeField] GameObject waitIconGO;
@@ -37,18 +39,83 @@ public class MainTab : MonoBehaviour
     /// Awake is called before any Start methods, making it a good place to set up references and initialize variables 
     /// that other scripts might depend on during their Start method.
     /// </summary>
-    private void Awake() 
+    private void Awake()
     {
         SetUpStartUI();
         inputText.onSelect.AddListener(delegate { OnInputTextFocus(inputText); });
         // inputText.onDeselect.AddListener(delegate { OnInputTextUnfocus(inputText); });
         inputText.onValueChanged.AddListener(delegate { OnInputTextChange(inputText); });
-        
+
         // This is not working, as it trigger even when the text is unfocused
         // inputText.onEndEdit.AddListener(delegate { OnInputTextFinish(inputText); });
+
+
         startButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnStartButtonClick(); });
         recordButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnRecordButtonClick(); });
         againButtonGO.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(delegate { OnAgainButtonClick(); });
+
+
+        difficultyToggleGO.GetComponent<UnityEngine.UI.Toggle>().onValueChanged.AddListener(delegate { OnDifficultyToggleClick(); });
+        // Load the temperature and top_k from PlayerPrefs
+        // If not found, use default value
+        float temperature = PlayerPrefs.GetFloat(Const.PREF_TEMPERATURE, 15.0f);
+        int topk = PlayerPrefs.GetInt(Const.PREF_TOPK, 4);
+        // Set the toggle button according to the temperature and top_k
+        SetDifficultyToggleUI(temperature, topk);
+
+    }
+
+    void SetDifficultyToggleUI(float temperature, int topk)
+    {
+        // Difficulty level is determined by both temperature and top_k
+        // Beginner: temperature >= 15.0f and top_k >= 4
+        // Advance: temperature <= 5.0f and top_k <= 3
+
+        // There are two UI component to set
+        // 1. The text on the toggle button: DifficultToggleGO -> DifficultButton --> DifficultyText (TMPro)
+        // 2. The HelpText value: DifficultToggleGO -> DifficultHelpText (TMPro)        
+
+        if (temperature <= 5.0f && topk <= 3)
+        {
+            //The text on the toggle button: DifficultToggleGO -> DifficultButton --> DifficultyText (TMPro)
+            difficultyToggleGO.transform.Find("DifficultButton").Find("DifficultText").GetComponent<Text>().text = "Advanced";
+            // The HelpText value: DifficultToggleGO -> DifficultHelpText (TMPro)        
+            difficultyToggleGO.transform.Find("DifficultHelpText").GetComponent<Text>().text = "Tap to switch to Beginner.";
+        }
+        else
+        {
+            difficultyToggleGO.transform.Find("DifficultButton").Find("DifficultText").GetComponent<Text>().text = "Beginner";
+            difficultyToggleGO.transform.Find("DifficultHelpText").GetComponent<Text>().text = "Tap to switch to Advanced.";
+        }
+    }
+    
+    void OnDifficultyToggleClick()
+    {
+        // Get the current temperature and top_k from PlayerPrefs
+        float temperature = PlayerPrefs.GetFloat(Const.PREF_TEMPERATURE, 15.0f);
+        int topk = PlayerPrefs.GetInt(Const.PREF_TOPK, 4);
+
+        // Toggle the difficulty level
+        if (temperature <= 5.0f && topk <= 3)
+        {
+            // Switch to Beginner
+            temperature = 15.0f;
+            topk = 4;
+        }
+        else
+        {
+            // Switch to Advanced
+            temperature = 5.0f;
+            topk = 3;
+        }
+
+        // Save the new temperature and top_k to PlayerPrefs
+        PlayerPrefs.SetFloat(Const.PREF_TEMPERATURE, temperature);
+        PlayerPrefs.SetInt(Const.PREF_TOPK, topk);
+        Debug.Log("Set temperature to " + temperature + " and topk to " + topk);
+
+        // Update the UI
+        SetDifficultyToggleUI(temperature, topk);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
